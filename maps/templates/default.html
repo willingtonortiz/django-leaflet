@@ -32,6 +32,48 @@
 	<div id="map"></div>
 
 	<script>
+
+
+
+		var latlngs = [
+			[
+				-5.220767,
+				-79.975689
+
+			],
+			[
+				-5.221681,
+				-79.974423
+
+			],
+			[
+				-5.220383,
+				-79.973618
+
+			],
+			[
+				-5.219646,
+				-79.973205
+
+			],
+			[
+				-5.219865,
+				-79.973854
+
+			],
+			[
+				-5.21987,
+				-79.974208
+
+			],
+			[
+				-5.220767,
+				-79.975689
+
+			]
+		];
+
+
 		var polygons = [];
 
 		const openStreetMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -70,9 +112,21 @@
 		// Map creation
 		var map = L.map("map", {
 			layers: [openStreetMap, satelliteMap]
-		}).setView([-5.220383, -79.975689], 13);
+		}).setView([-5.220383, -79.975689], 14);
 
 		L.control.layers(baseMaps).addTo(map);
+
+		var polygon1 = L.polygon(latlngs, { color: 'red', fillOpacity: 0 }).addTo(map);
+		var imageUrl = 'http://api.agromonitoring.com/image/1.0/1205d40da00/5e1f706a4fcefd6d32f91021?appid=9d411dc6b0e4cc020bd8b3b2e4ef69cc';
+		/*
+		[
+			[el mayor de todos los primeros elementos , el mayor de todos los segundos elementos],
+			[el menor de todos los primeros elementos, el menor de todos los primeros elementos]
+		]
+		*/
+		var imageBounds = [[-5.219646, -79.975689], [-5.221681, -79.973205]];
+		var lyrTest = L.imageOverlay(imageUrl, imageBounds).addTo(map);
+		map.fitBounds(imageBounds);
 
 		// Para el dibujado de polígonos
 		var drawnItems = new L.FeatureGroup();
@@ -97,8 +151,11 @@
 		});
 		map.addControl(drawControl);
 
+
+
 		map.on("draw:created", function (e) {
 			var type = e.layerType;
+			console.log(e.layer);
 			var layer = e.layer;
 
 			// Keep on the screen
@@ -110,11 +167,13 @@
 			console.log((seeArea / 10000).toFixed(2) + " Hectarias");
 			if (polygons.length == 0) {
 				polygons.push(shape.geometry.coordinates);
+				console.log(shape.geometry.coordinates);
+				//map.fitBounds(coordenas) para moverse a un punto;
+
 			}
 			else {
 
-				console.log(polygons[0][0]);
-				for (var i = 0; i < shape.geometry.coordinates[0].length -1; ++i) {
+				for (var i = 0; i < shape.geometry.coordinates[0].length - 1; ++i) {
 					if (isPointInsidePolygon(shape.geometry.coordinates[0][i], polygons[0][0]) == true) {
 						console.log("dentro del poligono");
 					}
@@ -170,7 +229,7 @@
 			var x = point[0];
 			var y = point[1];
 			var inside = false;
-			for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length ; j = i++) {
+			for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
 				var xi = polyPoints[i][0], yi = polyPoints[i][1];
 				var xj = polyPoints[j][0], yj = polyPoints[j][1];
 				//console.log(xi+" "+xj);
