@@ -31,28 +31,9 @@
 	<h1>My maps</h1>
 	<div id="map"></div>
 
-	{% comment %} {% leaflet_map "myMap2" %} {% endcomment %}
-
 	<script>
-		var map = L.map("map").setView([-5.220383, -79.975689], 14);
-		var polygons = [];
-		var lyrOSM = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-			attribution:
-				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-		});
-		map.addLayer(lyrOSM);
-		//var Test1;
-		//console.log("dibujado");
 
-		var baseMaps = {
-			"OSM": lyrOSM
-		};
-
-		var overlayMaps = {
-			//"Test1": Test1
-		};
-
-		var ctlLayers = L.control.layers(baseMaps, overlayMaps);
+		
 
 		var latlngs = [
 			[
@@ -91,17 +72,66 @@
 
 			]
 		];
+		
+
+		var polygons = [];
+
+		const openStreetMap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution:
+				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
+
+
+		const option_3 = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+			maxZoom: 20,
+			subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+		});
+
+		const satelliteMap = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+			maxZoom: 20,
+			subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+		});
+
+		// L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+		// 	maxZoom: 20,
+		// 	subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+		// }).addTo(map);
+
+		// L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+		// 	maxZoom: 20,
+		// 	subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+		// }).addTo(map);
+
+		// Map layers creation
+		let baseMaps = {
+			"openStreetMap": openStreetMap,
+			"satelliteMap": satelliteMap,
+			"option_3": option_3
+		};
+
+		// Map creation
+		var map = L.map("map", {
+			layers: [openStreetMap, satelliteMap]
+		}).setView([-5.220383, -79.975689], 14);
+
+		L.control.layers(baseMaps).addTo(map);
+
 		var polygon1 = L.polygon(latlngs, { color: 'red', fillOpacity: 0 }).addTo(map);
 		var imageUrl = 'http://api.agromonitoring.com/image/1.0/1205d40da00/5e1f706a4fcefd6d32f91021?appid=9d411dc6b0e4cc020bd8b3b2e4ef69cc';
-		/*[[el mayor de todos los primeros elementos , el mayor de todos los segundos elementos], 
-		[el menor de todos los primeros elementos, el menor de todos los primeros elementos
-		]]*/
+		/*
+		[
+			[el mayor de todos los primeros elementos , el mayor de todos los segundos elementos], 
+			[el menor de todos los primeros elementos, el menor de todos los primeros elementos]
+		]
+		*/
 		var imageBounds = [[-5.219646, -79.975689], [-5.221681, -79.973205]];
 		var lyrTest = L.imageOverlay(imageUrl, imageBounds).addTo(map);
 		map.fitBounds(imageBounds);
 
+		// Para el dibujado de polígonos
 		var drawnItems = new L.FeatureGroup();
 		map.addLayer(drawnItems);
+
 		var drawControl = new L.Control.Draw({
 			draw: {
 				position: "topleft",
