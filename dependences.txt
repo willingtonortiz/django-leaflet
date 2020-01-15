@@ -1,0 +1,4 @@
+django
+django-leaflet
+requests
+django-util-plus

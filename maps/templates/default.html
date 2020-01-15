@@ -79,7 +79,7 @@
 			else {
 
 				console.log(polygons[0][0]);
-				for (var i = 0; i < shape.geometry.coordinates[0].length; ++i) {
+				for (var i = 0; i < shape.geometry.coordinates[0].length -1; ++i) {
 					if (isPointInsidePolygon(shape.geometry.coordinates[0][i], polygons[0][0]) == true) {
 						console.log("dentro del poligono");
 					}
@@ -98,7 +98,7 @@
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
-						"X-CSRFToken": getCookie("csrftoken"),
+						"X-CSRFToken": getCookie('csrftoken')
 					},
 					body: JSON.stringify({
 						data
@@ -135,7 +135,7 @@
 			var x = point[0];
 			var y = point[1];
 			var inside = false;
-			for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length - 1; j = i++) {
+			for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length ; j = i++) {
 				var xi = polyPoints[i][0], yi = polyPoints[i][1];
 				var xj = polyPoints[j][0], yj = polyPoints[j][1];
 				//console.log(xi+" "+xj);
