@@ -50,15 +50,15 @@
 			subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
 		});
 
-		// L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+		// const option_4 = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
 		// 	maxZoom: 20,
 		// 	subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-		// }).addTo(map);
+		// });
 
-		// L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+		// const option_5 = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
 		// 	maxZoom: 20,
 		// 	subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-		// }).addTo(map);
+		// });
 
 		// Map layers creation
 		let baseMaps = {
@@ -70,7 +70,7 @@
 		// Map creation
 		var map = L.map("map", {
 			layers: [openStreetMap, satelliteMap]
-		}).setView([51.505, -0.09], 13);
+		}).setView([-5.220383, -79.975689], 13);
 
 		L.control.layers(baseMaps).addTo(map);
 
