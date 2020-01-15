@@ -1,0 +1,152 @@
+{% load leaflet_tags %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Mapas for django</title>
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+	<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+		integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+	<style>
+		#map {
+			width: 800px;
+			height: 600px;
+		}
+
+		/*.leaflet-draw-toolbar .leaflet-draw-draw-polygon {
+			background: url(https://images.vexels.com/media/users/3/141761/isolated/preview/d98a8114018473a6b0aeb849da9d6953-planta-de-alimento-de-trigo-by-vexels.png) no-repeat ;
+			background-color: #FFF;
+		}*/
+	</style>
+</head>
+
+<body>
+	<h1>My maps</h1>
+	<div id="map"></div>
+
+	{% comment %} {% leaflet_map "myMap2" %} {% endcomment %}
+
+	<script>
+		var map = L.map("map").setView([51.505, -0.09], 13);
+		var polygons = [];
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution:
+				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(map);
+
+		var drawnItems = new L.FeatureGroup();
+		map.addLayer(drawnItems);
+		var drawControl = new L.Control.Draw({
+			draw: {
+				position: "topleft",
+				polygon: {
+					shapeOptions: {
+						color: "#323232",
+						opacity: 1,
+						weight: 5
+					},
+					showArea: true
+				},
+				marker: false,
+				circle: false,
+				rectangle: false,
+				polyline: false
+			}
+		});
+		map.addControl(drawControl);
+
+		map.on("draw:created", function (e) {
+			var type = e.layerType;
+			var layer = e.layer;
+
+			// Keep on the screen
+			drawnItems.addLayer(layer);
+
+			var shape = layer.toGeoJSON();
+			var seeArea = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+			console.log("Area");
+			console.log((seeArea / 10000).toFixed(2) + " Hectarias");
+			if (polygons.length == 0) {
+				polygons.push(shape.geometry.coordinates);
+			}
+			else {
+
+				console.log(polygons[0][0]);
+				for (var i = 0; i < shape.geometry.coordinates[0].length; ++i) {
+					if (isPointInsidePolygon(shape.geometry.coordinates[0][i], polygons[0][0]) == true) {
+						console.log("dentro del poligono");
+					}
+					else {
+						console.log("fuera del poligono");
+					}
+
+				}
+			}
+			sendData(shape);
+		});
+
+		const sendData = async data => {
+			try {
+				const response = await fetch("http://127.0.0.1:8000/send_data", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-CSRFToken": getCookie("csrftoken"),
+					},
+					body: JSON.stringify({
+						data
+					})
+				})
+					.then(response => response.json());
+
+				console.log(response);
+				console.log(JSON.stringify(response));
+				console.log("Exito");
+			} catch (error) {
+				console.log("Error en el API");
+				console.log(error);
+			}
+		};
+
+		function getCookie(name) {
+			var cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				var cookies = document.cookie.split(';');
+				for (var i = 0; i < cookies.length; i++) {
+					var cookie = jQuery.trim(cookies[i]);
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		function isPointInsidePolygon(point, polyPoints) {
+			var x = point[0];
+			var y = point[1];
+			var inside = false;
+			for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length - 1; j = i++) {
+				var xi = polyPoints[i][0], yi = polyPoints[i][1];
+				var xj = polyPoints[j][0], yj = polyPoints[j][1];
+				//console.log(xi+" "+xj);
+				var intersect = ((yi > y) != (yj > y))
+					&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+				if (intersect) inside = !inside;
+			}
+
+			return inside;
+		}
+	</script>
+</body>
+
+</html>
